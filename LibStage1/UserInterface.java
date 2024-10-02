@@ -1,25 +1,27 @@
+import java.util.Iterator;
 import java.util.Scanner;
 
 public class UserInterface {
-
+    private Warehouse warehouse;
     private Scanner scanner;
-    private MemberList memberList; // Assuming you have a class for handling members
-    private ProductList productList; // Assuming you have a class for handling products
-    private WishlistManager wishlistManager; // Assuming you have a class for handling wishlists
 
-    public UserInterface(MemberList memberList, ProductList productList, WishlistManager wishlistManager) {
+    public UserInterface() {
+        this.warehouse = Warehouse.instance();
         this.scanner = new Scanner(System.in);
-        this.memberList = memberList;
-        this.productList = productList;
-        this.wishlistManager = wishlistManager;
     }
 
     public void start() {
         while (true) {
-            displayMainMenu();
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            System.out.println("\nWelcome to the Warehouse Management System");
+            System.out.println("1. Add Client");
+            System.out.println("2. Add Product");
+            System.out.println("3. View Clients");
+            System.out.println("4. View Products");
+            System.out.println("5. Add Product to Wishlist");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option: ");
 
+            int choice = Integer.parseInt(scanner.nextLine());
             switch (choice) {
                 case 1:
                     addClient();
@@ -28,87 +30,76 @@ public class UserInterface {
                     addProduct();
                     break;
                 case 3:
-                    addProductToWishlist();
+                    viewClients();
                     break;
                 case 4:
-                    displayClients();
+                    viewProducts();
                     break;
                 case 5:
-                    displayProducts();
+                    addToWishlist();
                     break;
                 case 6:
-                    displayWishlist();
-                    break;
-                case 0:
-                    System.out.println("Exiting program.");
+                    Warehouse.save();
+                    System.out.println("Exiting...");
                     return;
                 default:
-                    System.out.println("Invalid choice, please try again.");
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
     }
 
-    private void displayMainMenu() {
-        System.out.println("\n--- Main Menu ---");
-        System.out.println("1. Add Client");
-        System.out.println("2. Add Product");
-        System.out.println("3. Add Product to Wishlist");
-        System.out.println("4. Display Clients");
-        System.out.println("5. Display Products");
-        System.out.println("6. Display Wishlist for Client");
-        System.out.println("0. Exit");
-        System.out.print("Enter your choice: ");
-    }
-
     private void addClient() {
-        System.out.print("Enter client name: ");
+        System.out.print("Enter Client Name: ");
         String name = scanner.nextLine();
-        System.out.print("Enter client address: ");
+        System.out.print("Enter Client Address: ");
         String address = scanner.nextLine();
+        String clientID = IdServer.instance().getClientId();
 
-        memberList.addClient(name, address); // Delegating to the MemberList class
-        System.out.println("Client added successfully.");
+        Client client = warehouse.addClient(clientID, name, address);
+        System.out.println("Client added: " + client);
     }
 
     private void addProduct() {
-        System.out.print("Enter product name: ");
-        String productName = scanner.nextLine();
-        System.out.print("Enter product price: ");
-        double price = scanner.nextDouble();
-        System.out.print("Enter product quantity: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        System.out.print("Enter Product Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter Product Price: ");
+        double price = Double.parseDouble(scanner.nextLine());
+        System.out.print("Enter Product Quantity: ");
+        int quantity = Integer.parseInt(scanner.nextLine());
+        String productID = IdServer.instance().getProductId();
 
-        productList.addProduct(productName, price, quantity); // Delegating to ProductList class
-        System.out.println("Product added successfully.");
+        Product product = warehouse.addProduct(name, productID, price, quantity);
+        System.out.println("Product added: " + product);
     }
 
-    private void addProductToWishlist() {
-        System.out.print("Enter client ID: ");
-        int clientId = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
-        System.out.print("Enter product ID: ");
-        int productId = scanner.nextInt();
-        System.out.print("Enter quantity: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
-        wishlistManager.addToWishlist(clientId, productId, quantity); // Delegating to WishlistManager class
-        System.out.println("Product added to wishlist successfully.");
+    private void viewClients() {
+        Iterator<Client> clients = warehouse.getClients();
+        System.out.println("\nClients:");
+        while (clients.hasNext()) {
+            System.out.println(clients.next());
+        }
     }
 
-    private void displayClients() {
-        memberList.displayAllClients(); // Delegating to MemberList class
+    private void viewProducts() {
+        Iterator<Product> products = warehouse.getProducts();
+        System.out.println("\nProducts:");
+        while (products.hasNext()) {
+            System.out.println(products.next());
+        }
     }
 
-    private void displayProducts() {
-        productList.displayAllProducts(); // Delegating to ProductList class
+    private void addToWishlist() {
+        System.out.print("Enter Client ID: ");
+        String clientID = scanner.nextLine();
+        System.out.print("Enter Product ID: ");
+        String productID = scanner.nextLine();
+
+        warehouse.addToWishList(clientID, productID, 1);
+        System.out.println("Product added to wishlist for Client ID: " + clientID);
     }
 
-    private void displayWishlist() {
-        System.out.print("Enter client ID: ");
-        int clientId = scanner.nextInt();
-        wishlistManager.displayWishlistForClient(clientId); // Delegating to WishlistManager class
+    public static void main(String[] args) {
+        UserInterface ui = new UserInterface();
+        ui.start();
     }
 }
