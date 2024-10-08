@@ -49,14 +49,18 @@ public class UserInterface {
     }
 
     private void addClient() {
-        System.out.print("Enter Client Name: ");
-        String name = scanner.nextLine();
+        System.out.print("Enter Client First Name: ");
+        String firstName = scanner.nextLine();
+        System.out.print("Enter Client Last Name: ");
+        String lastName = scanner.nextLine();
         System.out.print("Enter Client Address: ");
         String address = scanner.nextLine();
+        System.out.print("Enter Client Phone Number: ");
+        String phone = scanner.nextLine();
         String clientID = IdServer.instance().getClientId();
 
-        Client client = warehouse.addClient(clientID, name, address);
-        System.out.println("Client added: " + client);
+        Client client = warehouse.addClient(clientID, firstName, lastName, address, phone);
+        System.out.println("Client added: \n" + client);
     }
 
     private void addProduct() {
@@ -94,8 +98,8 @@ public class UserInterface {
         System.out.print("Enter Product ID: ");
         String productID = scanner.nextLine();
 
-        warehouse.addToWishList(clientID, productID, 1);
-        System.out.println("Product added to wishlist for Client ID: " + clientID);
+        String message = warehouse.addToWishList(clientID, productID, 1);
+        System.out.println(message);
     }
 
     public static void main(String[] args) {
